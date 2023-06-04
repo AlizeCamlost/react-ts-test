@@ -1,4 +1,5 @@
 import React, { useRef } from 'react';
+import "../style/cameraComponentStyle.css";
 
 const CameraComponent_video = () => {
     const cameraVideoRef = useRef<HTMLVideoElement | null>(null);
@@ -84,31 +85,21 @@ const CameraComponent_video = () => {
     };
 
     return (
-        <div>
-            <video
-                id="cameraVideo"
-                ref={cameraVideoRef}
-                style={{
-                    width: '720px', height: '360px'
-                }}
-            />
-            <canvas
-                id="cameraCanvas"
-                ref={cameraCanvasRef}
-                width={1280}
-                height={720}
-                style={{
-                    width: '1280px', height: '720px'
-                }}
-            />
-            <img id="imgTag" src="" alt="imgTag" />
-            <button onClick={openMedia} >打开摄像头</button>
-            <button onClick={startRecording}>开始录像</button>
-            <button onClick={endRecording}>停止录像</button>
-            <button onClick={playVideo}>播放视频</button>
-            {/* <button onClick={saveImg} >保存</button> */}
-            <button onClick={exportVideo} >保存</button>
-            {/* <button onClick={closeMedia} >关闭摄像头</button> */}
+        <div className="container_col">
+            <div>
+                <video
+                    id="cameraVideo"
+                    ref={cameraVideoRef}
+                    className="video"
+                />
+            </div>
+            <div className="container_vol">
+                <button className="button" onClick={openMedia} >打开摄像头</button>
+                <button className="button" onClick={startRecording}>开始录像</button>
+                <button className="button" onClick={endRecording}>停止录像</button>
+                <button className="button" onClick={playVideo}>播放视频</button>
+                <button className="button" onClick={exportVideo} >保存</button>
+            </div>
         </div>
     )
 }
