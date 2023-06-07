@@ -84,6 +84,32 @@ const CameraComponent_video = () => {
         link.click();
     };
 
+    const sendVideo = () => {
+        if (embedVideoData.current === null) return;
+        const videoBlob = embedVideoData.current;
+    
+        // 创建一个新的WebSocket连接
+        const socket = new WebSocket('ws://18.166.213.51:8765/');
+    
+        // 当WebSocket连接打开时
+        socket.onopen = function(event) {
+            // 将视频数据发送到服务器
+            socket.send(videoBlob);
+        };
+    
+        // 当接收到服务器的响应消息时
+        socket.onmessage = function(event) {
+            console.log('服务器响应：', event.data);
+            // 在这里处理服务器的响应
+        };
+    
+        // 当WebSocket连接关闭时
+        socket.onclose = function(event) {
+            console.log('WebSocket连接已关闭');
+        };
+    };
+    
+
     return (
         <div className="container_col">
             <div>
@@ -94,11 +120,12 @@ const CameraComponent_video = () => {
                 />
             </div>
             <div className="container_vol">
-                <button className="button" onClick={openMedia} >打开摄像头</button>
-                <button className="button" onClick={startRecording}>开始录像</button>
-                <button className="button" onClick={endRecording}>停止录像</button>
-                <button className="button" onClick={playVideo}>播放视频</button>
-                <button className="button" onClick={exportVideo} >保存</button>
+                <button className="button" onClick={openMedia} >Open Camera</button>
+                <button className="button" onClick={startRecording}>Start Recording</button>
+                <button className="button" onClick={endRecording}>Stop Recording</button>
+                <button className="button" onClick={playVideo}>Play Video</button>
+                <button className="button" onClick={exportVideo} >Save</button>
+                <button className="button" onClick={sendVideo} >Send</button>
             </div>
         </div>
     )
