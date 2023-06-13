@@ -89,7 +89,7 @@ const CameraComponent_video = () => {
         const videoBlob = embedVideoData.current;
     
         // 创建一个新的WebSocket连接
-        const socket = new WebSocket('wss://18.166.213.51:8765/');
+        const socket = new WebSocket('wss://34.92.225.35:8765/');
     
         // 当WebSocket连接打开时
         socket.onopen = function(event) {
