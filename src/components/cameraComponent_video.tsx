@@ -71,7 +71,9 @@ const CameraComponent_video = () => {
         // 把视频数据转为 URL 传给 video 的 src
         video.src = URL.createObjectURL(embedVideoData.current);
         // 播放视频
-        video.play();
+        setTimeout(() => {
+            video.play();
+        }, 500);
         // 启用 video 的控制组件
         video.controls = true;
         // 删除媒体流
@@ -91,7 +93,8 @@ const CameraComponent_video = () => {
         const videoBlob = embedVideoData.current;
 
         // 创建一个新的WebSocket连接
-        const socket = new WebSocket('ws://34.92.189.46:8765/');
+        // const socket = new WebSocket('ws://34.92.189.46:8765/');
+        const socket = new WebSocket('ws://127.0.0.1:8765/');
 
         // 当WebSocket连接打开时
         socket.onopen = function (event) {
@@ -113,12 +116,35 @@ const CameraComponent_video = () => {
 
     const [frameUrl, setFrameUrl] = useState<string | null>(null);
 
-    const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        const file = event.target.files?.[0];
-        if (file) {
+//     const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+//         const file = event.target.files?.[0];
+//         if (file) {
+//             const video = document.createElement('video');
+//             video.preload = 'metadata';
+//             video.src = URL.createObjectURL(file);
+//             video.onloadedmetadata = () => {
+//                 // 确保视频加载完成后获取帧
+//                 const canvas = document.createElement('canvas');
+//                 canvas.width = video.videoWidth;
+//                 canvas.height = video.videoHeight;
+//                 const context = canvas.getContext('2d');
+//                 if (context) {
+//                     video.currentTime = 5; // 设置时间戳为5秒
+//                     video.addEventListener('seeked', () => {
+//                         context.drawImage(video, 0, 0, canvas.width, canvas.height);
+//                         const frameDataUrl = canvas.toDataURL('image/jpeg');
+//                         setFrameUrl(frameDataUrl);
+//                         downloadFrame(frameDataUrl);
+//                     });
+//                 }
+//             };
+//     }
+// };
+    const sendFrame = () => {
+        if (embedVideoData.current) {
             const video = document.createElement('video');
             video.preload = 'metadata';
-            video.src = URL.createObjectURL(file);
+            video.src = URL.createObjectURL(embedVideoData.current);
             video.onloadedmetadata = () => {
                 // 确保视频加载完成后获取帧
                 const canvas = document.createElement('canvas');
@@ -161,7 +187,8 @@ const CameraComponent_video = () => {
                 <button className="button" onClick={playVideo}>Play Video</button>
                 <button className="button" onClick={exportVideo} >Save</button>
                 <button className="button" onClick={sendVideo} >Send</button>
-                <input type="file" accept="video/webm" onChange={handleFileChange} />
+                {/* <input type="file" accept="video/webm" onChange={handleFileChange} /> */}
+                <button className="button" onClick={sendFrame}>save frame</button>
                 {frameUrl && <img src={frameUrl} alt="Frame" />}
             </div>
         </div>
