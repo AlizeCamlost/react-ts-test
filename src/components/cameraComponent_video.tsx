@@ -1,4 +1,5 @@
-import React, { useRef } from 'react';
+import React, { useState, useRef, ChangeEvent } from 'react';
+import { createFFmpeg, fetchFile } from '@ffmpeg/ffmpeg';
 import "../style/cameraComponentStyle.css";
 
 const CameraComponent_video = () => {
@@ -30,8 +31,8 @@ const CameraComponent_video = () => {
         const opt = {
             audio: false,
             video: {
-                width: 720,
-                height: 360
+                width: 128,
+                height: 128
             }
         };
         navigator.mediaDevices.getUserMedia(opt).then(successFunc).catch(errorFunc);
@@ -65,6 +66,7 @@ const CameraComponent_video = () => {
         // 清除 video 的媒体流
         const video = cameraVideoRef.current;
         if (video == null) return;
+        console.log(embedVideoData.current);
         video.srcObject = null;
         // 把视频数据转为 URL 传给 video 的 src
         video.src = URL.createObjectURL(embedVideoData.current);
@@ -87,28 +89,61 @@ const CameraComponent_video = () => {
     const sendVideo = () => {
         if (embedVideoData.current === null) return;
         const videoBlob = embedVideoData.current;
-    
+
         // 创建一个新的WebSocket连接
-        const socket = new WebSocket('ws://localhost:8765/');
-    
+        const socket = new WebSocket('ws://34.92.189.46:8765/');
+
         // 当WebSocket连接打开时
-        socket.onopen = function(event) {
+        socket.onopen = function (event) {
             // 将视频数据发送到服务器
             socket.send(videoBlob);
         };
-    
+
         // 当接收到服务器的响应消息时
-        socket.onmessage = function(event) {
+        socket.onmessage = function (event) {
             console.log('服务器响应：', event.data);
             // 在这里处理服务器的响应
         };
-    
+
         // 当WebSocket连接关闭时
-        socket.onclose = function(event) {
+        socket.onclose = function (event) {
             console.log('WebSocket连接已关闭');
         };
     };
-    
+
+    const [frameUrl, setFrameUrl] = useState<string | null>(null);
+
+    const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        const file = event.target.files?.[0];
+        if (file) {
+            const video = document.createElement('video');
+            video.preload = 'metadata';
+            video.src = URL.createObjectURL(file);
+            video.onloadedmetadata = () => {
+                // 确保视频加载完成后获取帧
+                const canvas = document.createElement('canvas');
+                canvas.width = video.videoWidth;
+                canvas.height = video.videoHeight;
+                const context = canvas.getContext('2d');
+                if (context) {
+                    video.currentTime = 5; // 设置时间戳为5秒
+                    video.addEventListener('seeked', () => {
+                        context.drawImage(video, 0, 0, canvas.width, canvas.height);
+                        const frameDataUrl = canvas.toDataURL('image/jpeg');
+                        setFrameUrl(frameDataUrl);
+                        downloadFrame(frameDataUrl);
+                    });
+                }
+            };
+        }
+    };
+
+    const downloadFrame = (dataUrl: string) => {
+        const link = document.createElement('a');
+        link.href = dataUrl;
+        link.download = 'frame.jpeg';
+        link.click();
+    };
 
     return (
         <div className="container_col">
@@ -126,6 +161,8 @@ const CameraComponent_video = () => {
                 <button className="button" onClick={playVideo}>Play Video</button>
                 <button className="button" onClick={exportVideo} >Save</button>
                 <button className="button" onClick={sendVideo} >Send</button>
+                <input type="file" accept="video/webm" onChange={handleFileChange} />
+                {frameUrl && <img src={frameUrl} alt="Frame" />}
             </div>
         </div>
     )

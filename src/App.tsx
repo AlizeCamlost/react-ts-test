@@ -8,8 +8,8 @@ import { SendPic } from './components/testSendPic';
 function App() {
   return (
     <div className="App">
-      {/* <CameraComponent_video /> */}
-      <SendPic />
+      <CameraComponent_video />
+      {/* <SendPic /> */}
     </div>
   );
 }
